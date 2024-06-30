@@ -1,0 +1,35 @@
+name: Release
+on:
+  push:
+    branches:
+      - main
+      - actions
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    permissions:
+      packages: write
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Install dependencies 
+        working-directory: .
+        run: |
+          sudo apt install -y podman
+      - name: Build container
+        working-directory: .
+        run: |
+          podman manifest create haxesandbox
+          podman build --platform linux/amd64 --manifest haxesandbox .
+      - name: Log in to Github Packages
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push to Github Packages
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: haxesandbox
+          registry: ghcr.io/l0go

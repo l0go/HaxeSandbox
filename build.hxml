@@ -1,0 +1,13 @@
+--js bin/main.js
+--main Main
+
+-cp vendor/hxnodejs/src/
+-cp vendor/http/src/
+-cp vendor/promises/src/
+-cp vendor/logging/src/
+-cp vendor/queues-core/src/
+-cp src/
+
+--macro allowPackage('sys')
+--macro define('nodejs')
+--macro _internal.SuppressDeprecated.run()

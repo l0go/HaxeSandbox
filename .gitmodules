@@ -1,0 +1,15 @@
+[submodule "vendor/hxnodejs"]
+	path = vendor/hxnodejs
+	url = https://github.com/HaxeFoundation/hxnodejs
+[submodule "vendor/http"]
+	path = vendor/http
+	url = https://github.com/core-haxe/http
+[submodule "vendor/promises"]
+	path = vendor/promises
+	url = https://github.com/core-haxe/promises
+[submodule "vendor/logging"]
+	path = vendor/logging
+	url = https://github.com/core-haxe/logging
+[submodule "vendor/queues-core"]
+	path = vendor/queues-core
+	url = https://github.com/core-haxe/queues-core
