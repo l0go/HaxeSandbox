@@ -5,6 +5,7 @@ Description=Use podman to run untrusted Haxe code in a read-only container
 Image=ghcr.io/l0go/haxesandbox:latest
 ReadOnly=true
 PublishPort=1337:1111
+Mount=type=tmpfs,destination=/var/haxelib,tmpfs-size=500000000
 
 [Install]
 WantedBy=multi-user.target

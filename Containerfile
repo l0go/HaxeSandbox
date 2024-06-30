@@ -4,11 +4,11 @@ WORKDIR /app/src
 COPY src ./src/
 COPY vendor ./vendor/
 copy build.hxml ./
-RUN ls
 RUN haxe build.hxml -w -WDeprecated
 
 FROM quay.io/fedora/fedora
 RUN dnf install -y nodejs haxe
+RUN haxelib setup /var/haxelib
 WORKDIR /app/
 COPY params.hxml ./
 COPY --from=build /app/src/bin/main.js ./
