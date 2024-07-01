@@ -61,7 +61,6 @@ class Main {
 							var process = ChildProcess.spawn("haxelib", body.input.split(" "));
 							var stdout = "";
 							process.stdout.on('data', (data) -> {
-								trace("boo");
 								stdout += data;
 							});
 
