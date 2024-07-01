@@ -93,13 +93,19 @@ class Main {
 	}
 
 	static function runHaxe(src: String, hxml: String, onOutput: (String) -> Void, onError: (String) -> Void) {
+		// This is the folder where we keep the different source folders
+		final sourceRepository = Sys.getEnv("SOURCE_REPO") ?? "/dev/shm/";
 		// Create a temporary folder in memory for holding the source
-		final dir = new String(ChildProcess.spawnSync("mktemp", ["-d", "-p", "/dev/shm/"]).stdout).trim();
+		final dir = new String(ChildProcess.spawnSync("mktemp", ["-d", "-p", sourceRepository]).stdout).trim();
 		sys.io.File.saveContent('$dir/Main.hx', src);
-		ChildProcess.exec('haxe params.hxml $hxml -cp $dir', {timeout: 10000}, (error, stdout, stderr) -> {
-			if (stderr != "") onError((cast stderr : js.node.Buffer).toString());
-			if (stdout != "") onOutput((cast stdout : js.node.Buffer).toString());
+		ChildProcess.exec('chmod 755 $dir/', null, null);
+		ChildProcess.exec('chmod 755 $dir/Main.hx', null, null);
+		var user = Sys.getEnv("HAXE_USER") ?? Sys.getEnv("USER");
+
+		ChildProcess.exec('runuser -l $user -c "haxe params.hxml $hxml -cp $dir"', {timeout: 10000}, (error, stdout, stderr) -> {
 			if (error?.signal == "SIGTERM") onError("Timed out, try again");
+			if (stderr != "") onError((cast stderr : js.node.Buffer).toString());
+			else onOutput((cast stdout : js.node.Buffer).toString());
 			ChildProcess.exec('rm -rf $dir', null, null);
 		});
 	}
