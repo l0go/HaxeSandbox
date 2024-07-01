@@ -101,17 +101,34 @@ class Main {
 	static function runHaxe(src: String, hxml: String, onOutput: (String) -> Void, onError: (String) -> Void) {
 		// This is the folder where we keep the different source folders
 		final sourceRepository = Sys.getEnv("SOURCE_REPO") ?? "/dev/shm/";
+
 		// Create a temporary folder in memory for holding the source
 		final dir = new String(ChildProcess.spawnSync("mktemp", ["-d", "-p", sourceRepository]).stdout).trim();
 		sys.io.File.saveContent('$dir/Main.hx', src);
 		ChildProcess.exec('chmod 755 $dir/', null, null);
 		ChildProcess.exec('chmod 755 $dir/Main.hx', null, null);
-		var user = Sys.getEnv("HAXE_USER") ?? Sys.getEnv("USER");
 
-		ChildProcess.exec('runuser -l $user -c "haxe params.hxml $hxml -cp $dir"', {timeout: 3000}, (error, stdout, stderr) -> {
-			if (error?.signal == "SIGTERM") onError("Timed out, try again");
-			if (stderr.trim() != "") onError((cast stderr : js.node.Buffer).toString());
-			else onOutput((cast stdout : js.node.Buffer).toString());
+		final user = Sys.getEnv("HAXE_USER") ?? Sys.getEnv("USER");
+		final uid = Std.parseInt(ChildProcess.execSync('id -u $user'));
+
+		var process = ChildProcess.spawn("haxe", ["params.hxml"].concat(hxml.split(" ")).concat(["-cp", dir]), untyped {uid: uid, timeout: 3000, cwd: '/home/$user'});
+
+		var stdout = "";
+		process.stdout.on('data', (data) -> {
+			stdout += data;
+		});
+
+		var stderr = "";
+		process.stderr.on('data', (data) -> {
+			stderr += data;
+		});
+
+		process.on("close", (code) -> {
+			switch (code) {
+				case 0: onOutput((cast stdout : js.node.Buffer).toString());
+				case 143: onError("Timed out, try again");
+				default: onError((cast stderr : js.node.Buffer).toString());
+			}
 			ChildProcess.exec('rm -rf $dir', null, null);
 		});
 	}
