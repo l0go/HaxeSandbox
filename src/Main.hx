@@ -126,7 +126,7 @@ class Main {
 		process.on("close", (code) -> {
 			switch (code) {
 				case 0: onOutput((cast stdout : js.node.Buffer).toString());
-				case 143: onError("Timed out, try again");
+				case null: onError("Timed out, try again");
 				default: onError((cast stderr : js.node.Buffer).toString());
 			}
 			ChildProcess.exec('rm -rf $dir', null, null);
