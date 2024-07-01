@@ -8,7 +8,7 @@ Once upon a time there was a man who made a chatbot that ran arbitrary Haxe code
 1. Install Podman, it is included on Fedora Server installs and presumably most RHEL-based distros
 2. Run the magic command to download and run the container:
 ```bash
-podman run --rm -p=1337:1111 --mount type=tmpfs,destination=/var/haxelib,tmpfs-size=500000000 --read-only haxesandbox:latest
+podman run --rm -p=1337:1111 --mount type=tmpfs,destination=/var/haxelib,tmpfs-size=500000000 --mount type=tmpfs,destination=/var/haxe,tmpfs-size=500000000 --read-only --read-only-tmpfs=False ghcr.io/l0go/haxesandbox:latest
 ```
 - Alternatively if you wish to run the container on server boot, you can utilize systemd's Quadlet feature. Just copy ``etc/haxesandbox.container`` in this repository to ``/etc/containers/systemd/`` and run ``systemctl daemon-reload``. This will generate a systemd service.
 3. Send a request to the server

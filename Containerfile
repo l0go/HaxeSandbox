@@ -12,6 +12,7 @@ RUN useradd runner
 RUN haxelib setup /var/haxelib
 RUN mkdir /var/haxe
 RUN chmod 755 /var/haxe
+RUN chmod 755 /var/haxelib
 WORKDIR /app/
 COPY params.hxml /home/runner/params.hxml
 COPY --from=build /app/src/bin/main.js ./

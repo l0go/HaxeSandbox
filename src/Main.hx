@@ -42,17 +42,16 @@ class Main {
 
 					switch (body.action) {
 						case Run:
-							var r: Response;
 							if (body.action != Run) throw "Invalid Action";
 							runHaxe(body.input, body.hxml ?? "", (output) -> {
-								r = {
+								final r = {
 									status: Ok,
 									output: output,
 								}
 								sendResponse(response, r);
 								resolve(response);
 							}, (error) -> {
-								r = {
+								final r = {
 									status: OhNo,
 									error: error,
 								};
@@ -61,9 +60,12 @@ class Main {
 							});
 						case HaxelibRun:
 							ChildProcess.exec("haxelib " + body.input, null, (_, stdout, stderr) -> {
-								var r: Response = {
-									status: stderr != "" ? Ok : OhNo,
+								var r: Response = if (stderr.trim() == "") {
+									status: Ok,
 									output: (cast stdout : js.node.Buffer).toString(),
+								} else {
+									status: OhNo,
+									error: (cast stderr : js.node.Buffer).toString(),
 								};
 								sendResponse(response, r);
 								resolve(response);
@@ -104,7 +106,7 @@ class Main {
 
 		ChildProcess.exec('runuser -l $user -c "haxe params.hxml $hxml -cp $dir"', {timeout: 10000}, (error, stdout, stderr) -> {
 			if (error?.signal == "SIGTERM") onError("Timed out, try again");
-			if (stderr != "") onError((cast stderr : js.node.Buffer).toString());
+			if (stderr.trim() != "") onError((cast stderr : js.node.Buffer).toString());
 			else onOutput((cast stdout : js.node.Buffer).toString());
 			ChildProcess.exec('rm -rf $dir', null, null);
 		});
