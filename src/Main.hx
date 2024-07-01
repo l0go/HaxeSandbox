@@ -39,7 +39,6 @@ class Main {
 			return new promises.Promise((resolve, reject) -> {
 				if (request.method == http.HttpMethod.Post) {
 					final body: Request = haxe.Json.parse(request.body);
-
 					switch (body.action) {
 						case Run:
 							if (body.action != Run) throw "Invalid Action";
@@ -59,13 +58,20 @@ class Main {
 								resolve(response);
 							});
 						case HaxelibRun:
-							ChildProcess.exec("haxelib " + body.input, null, (_, stdout, stderr) -> {
-								var r: Response = if (stderr.trim() == "") {
+							var process = ChildProcess.spawn("haxelib", body.input.split(" "));
+							var stdout = "";
+							process.stdout.on('data', (data) -> {
+								trace("boo");
+								stdout += data;
+							});
+
+							process.on("close", (code) -> {
+								var r: Response = if (code == 0) {
 									status: Ok,
 									output: (cast stdout : js.node.Buffer).toString(),
 								} else {
 									status: OhNo,
-									error: (cast stderr : js.node.Buffer).toString(),
+									error: (cast stdout : js.node.Buffer).toString(),
 								};
 								sendResponse(response, r);
 								resolve(response);
@@ -73,7 +79,6 @@ class Main {
 						default:
 							throw "Action doesn't exist";
 					}
-
 				} else {
 					var error = new http.HttpError(405);
 					error.body = Bytes.ofString("405, method not found");
@@ -104,7 +109,7 @@ class Main {
 		ChildProcess.exec('chmod 755 $dir/Main.hx', null, null);
 		var user = Sys.getEnv("HAXE_USER") ?? Sys.getEnv("USER");
 
-		ChildProcess.exec('runuser -l $user -c "haxe params.hxml $hxml -cp $dir"', {timeout: 10000}, (error, stdout, stderr) -> {
+		ChildProcess.exec('runuser -l $user -c "haxe params.hxml $hxml -cp $dir"', {timeout: 3000}, (error, stdout, stderr) -> {
 			if (error?.signal == "SIGTERM") onError("Timed out, try again");
 			if (stderr.trim() != "") onError((cast stderr : js.node.Buffer).toString());
 			else onOutput((cast stdout : js.node.Buffer).toString());
