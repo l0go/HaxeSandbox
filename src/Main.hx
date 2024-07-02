@@ -104,6 +104,7 @@ class Main {
 
 		// Create a temporary folder in memory for holding the source
 		final dir = new String(ChildProcess.spawnSync("mktemp", ["-d", "-p", sourceRepository]).stdout).trim();
+
 		sys.io.File.saveContent('$dir/Main.hx', src);
 		ChildProcess.exec('chmod 755 $dir/', null, null);
 		ChildProcess.exec('chmod 755 $dir/Main.hx', null, null);
@@ -111,7 +112,8 @@ class Main {
 		final user = Sys.getEnv("HAXE_USER") ?? Sys.getEnv("USER");
 		final uid = Std.parseInt(ChildProcess.execSync('id -u $user'));
 
-		var process = ChildProcess.spawn("haxe", ["params.hxml"].concat(hxml.split(" ")).concat(["-cp", dir]), untyped {uid: uid, timeout: 3000, cwd: '/home/$user'});
+		final hxmlSplit = [for (c in hxml.split(" ")) if (c.trim() != "") c];
+		var process = ChildProcess.spawn("haxe", ["params.hxml"].concat(hxmlSplit).concat(["-cp", dir]), untyped {uid: uid, timeout: 3000, cwd: '/home/$user'});
 
 		var stdout = "";
 		process.stdout.on('data', (data) -> {
