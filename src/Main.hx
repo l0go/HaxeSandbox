@@ -7,6 +7,7 @@ using StringTools;
 
 enum abstract Action(String) {
 	var Run = "run";
+	var HaxeVersion = "haxe_version";
 	var HaxelibRun = "haxelib_run";
 }
 
@@ -57,8 +58,24 @@ class Main {
 								sendResponse(response, r);
 								resolve(response);
 							});
+						case HaxeVersion:
+							final hl = ChildProcess.spawn("haxe", ["--version"]);
+
+							var version: String;
+							hl.stdout.on("data", (d) -> {
+								version = (cast d : js.node.Buffer).toString();
+							});
+
+							hl.on('exit', (code) -> {
+								final r = {
+									status: Ok,
+									output: version.trim(),
+								};
+								sendResponse(response, r);
+								resolve(response);
+							});
 						case HaxelibRun:
-							var process = ChildProcess.spawn("haxelib", body.input.split(" "));
+							var process = ChildProcess.spawn("haxelib", body.input.split(" "), untyped {timeout: 60000});
 							var stdout = "";
 							process.stdout.on('data', (data) -> {
 								stdout += data;
@@ -113,7 +130,7 @@ class Main {
 		final uid = Std.parseInt(ChildProcess.execSync('id -u $user'));
 
 		final hxmlSplit = [for (c in hxml.split(" ")) if (c.trim() != "") c];
-		var process = ChildProcess.spawn("haxe", ["params.hxml"].concat(hxmlSplit).concat(["-cp", dir]), untyped {uid: uid, timeout: 3000, cwd: '/home/$user'});
+		final process = ChildProcess.spawn("haxe", ["params.hxml"].concat(hxmlSplit).concat(["-cp", dir]), untyped {uid: uid, timeout: 3000, cwd: '/home/$user'});
 
 		var stdout = "";
 		process.stdout.on('data', (data) -> {
