@@ -1,6 +1,7 @@
 package;
 
 import haxe.io.Bytes;
+import haxe.crypto.Sha256;
 import js.node.ChildProcess;
 
 using StringTools;
@@ -38,6 +39,10 @@ class Main {
 		var server = new http.server.HttpServer();
 		server.onRequest = (request, response) -> {
 			return new promises.Promise((resolve, reject) -> {
+				final authKey = Sys.getEnv("AUTH_KEY");
+				if (authKey != null && Sha256.encode(Std.string(request.headers.get("authorization")).split(" ")[1]) != authKey) {
+					throw "Authorization Token Invalid";
+				}
 				if (request.method == http.HttpMethod.Post) {
 					final body: Request = haxe.Json.parse(request.body);
 					switch (body.action) {
@@ -106,6 +111,7 @@ class Main {
 
 		final port = Std.parseInt(Sys.getEnv("PORT")) ?? 1111;
 		server.start(port);
+		log.info(":)");
 		log.info("Server running!", {address: "127.0.0.1", port: port});
 	}
 

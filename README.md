@@ -6,21 +6,26 @@ Once upon a time there was a man who made a chatbot that ran arbitrary Haxe code
 
 ## How?
 1. Install Podman, it is included on Fedora Server installs and presumably most RHEL-based distros
-2. Run the magic command to download and run the container:
+2. Run this command and save the outputs somewhere safe
 ```bash
-podman run --rm -p=1337:1111 --mount type=tmpfs,destination=/var/haxelib,tmpfs-size=500000000 --mount type=tmpfs,destination=/var/haxe,tmpfs-size=500000000 --read-only --read-only-tmpfs=False ghcr.io/l0go/haxesandbox:latest
+b64=`cat /dev/urandom | head -c 24 | base64`; echo "BASE64: $b64\n"; sum=`printf "%s" $b64 | sha256sum | cut -f 1 -d " "`; echo "SHA256: $sum"
 ```
-- Alternatively if you wish to run the container on server boot, you can utilize systemd's Quadlet feature. Just copy ``etc/haxesandbox.container`` in this repository to ``/etc/containers/systemd/`` and run ``systemctl daemon-reload``. This will generate a systemd service.
-3. Send a request to the server
+3. Run the magic command to download and run the container. Make sure to replace ``{SHA256_KEY}`` with the SHA256 key from the previous command.
+```bash
+podman run --rm --env -p=1337:1111 --env `AUTH_KEY={SHA256_KEY}` --mount type=tmpfs,destination=/var/haxelib,tmpfs-size=500000000 --mount type=tmpfs,destination=/var/haxe,tmpfs-size=500000000 --read-only --read-only-tmpfs=False ghcr.io/l0go/haxesandbox:latest
+```
+- Alternatively if you wish to run the container on server boot, you can utilize systemd's Quadlet feature. Just copy ``etc/haxesandbox.container`` in this repository to ``/etc/containers/systemd/`` and run ``systemctl daemon-reload``. This will generate a systemd service. Make sure to replace the ``SHA256_KEY`` in the ``haxesandbox.container`` file too.
+4. Send a request to the server, change {BASE64} to the base64 key generated from the second command.
 ```bash
 curl -d '
 {
     "action": "run",
     "input" : "class Main {static function main() {trace(9+10);}}"
-}' http://localhost:1337/
+}' -H "Authorization: Basic {BASE64}" http://localhost:1337/
 ```
 - In the real world, you can use Haxe's http functionality or the core-haxe/http library
 
 ## Things to note
 - While the Haxe code is being ran, it will be readable by any other Haxe code. Treat any input as if it was public.
 - Docker should work as well for most of the above steps, I just prefer Podman and it is what I test with.
+- Consider using a distribution with SELinux such as a RHEL derivative or Fedora. Podman integrates well with it better than AppArmor which Ubuntu uses.
