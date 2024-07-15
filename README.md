@@ -6,16 +6,16 @@ Once upon a time there was a man who made a chatbot that ran arbitrary Haxe code
 
 ## How?
 1. Install Podman, it is included on Fedora Server installs and presumably most RHEL-based distros
-2. Run this command and save the outputs somewhere safe
+2. Run this command and save the output somewhere safe
 ```bash
-b64=`cat /dev/urandom | head -c 24 | base64`; echo "BASE64: $b64\n"; sum=`printf "%s" $b64 | sha256sum | cut -f 1 -d " "`; echo "SHA256: $sum"
+b64=`cat /dev/urandom | head -c 24 | base64`; echo "BASE64: $b64\n"; sum=`printf "%s" $b64 | sha256sum | cut -f 1 -d " "`; printf $sum | podman secret create haxe_authkey - >/dev/null 2>&1
 ```
-3. Run the magic command to download and run the container. Make sure to replace ``{SHA256_KEY}`` with the SHA256 key from the previous command.
+3. Run the magic command to download and run the container:
 ```bash
-podman run --rm --env -p=1337:1111 --env `AUTH_KEY={SHA256_KEY}` --mount type=tmpfs,destination=/var/haxelib,tmpfs-size=500000000 --mount type=tmpfs,destination=/var/haxe,tmpfs-size=500000000 --read-only --read-only-tmpfs=False ghcr.io/l0go/haxesandbox:latest
+podman run --rm -p=1337:1111 --secret haxe_authkey,mode=0400 --mount type=tmpfs,destination=/var/haxelib,tmpfs-size=500000000 --mount type=tmpfs,destination=/var/haxe,tmpfs-size=500000000 --read-only --read-only-tmpfs=False haxesandbox:latest
 ```
-- Alternatively if you wish to run the container on server boot, you can utilize systemd's Quadlet feature. Just copy ``etc/haxesandbox.container`` in this repository to ``/etc/containers/systemd/`` and run ``systemctl daemon-reload``. This will generate a systemd service. Make sure to replace the ``SHA256_KEY`` in the ``haxesandbox.container`` file too.
-4. Send a request to the server, change {BASE64} to the base64 key generated from the second command.
+- Alternatively if you wish to run the container on server boot, you can utilize systemd's Quadlet feature. Just copy ``etc/haxesandbox.container`` in this repository to ``/etc/containers/systemd/`` and run ``systemctl daemon-reload``.
+4. Send a request to the server, change {BASE64} to the base64 key generated from the second step.
 ```bash
 curl -d '
 {

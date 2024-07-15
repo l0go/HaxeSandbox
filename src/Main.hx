@@ -39,7 +39,7 @@ class Main {
 		var server = new http.server.HttpServer();
 		server.onRequest = (request, response) -> {
 			return new promises.Promise((resolve, reject) -> {
-				final authKey = Sys.getEnv("AUTH_KEY");
+				final authKey = sys.io.File.getContent("/run/secrets/authkey");
 				if (authKey != null && Sha256.encode(Std.string(request.headers.get("authorization")).split(" ")[1]) != authKey) {
 					throw "Authorization Token Invalid";
 				}
