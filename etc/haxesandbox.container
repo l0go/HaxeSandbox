@@ -8,7 +8,7 @@ ReadOnlyTmpfs=false
 PublishPort=1337:1111
 Mount=type=tmpfs,destination=/var/haxelib,tmpfs-size=500000000
 Mount=type=tmpfs,destination=/var/haxe,tmpfs-size=500000000
-Environment=`AUTH_KEY={SHA256_KEY}`
+Secret=haxe_authkey,mode=0400 
 
 [Install]
 WantedBy=multi-user.target
