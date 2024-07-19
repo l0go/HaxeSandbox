@@ -12,7 +12,7 @@ b64=`cat /dev/urandom | head -c 24 | base64`; echo "BASE64: $b64\n"; sum=`printf
 ```
 3. Run the magic command to download and run the container:
 ```bash
-podman run --rm -p=1337:1111 --secret haxe_authkey,mode=0400 --mount type=tmpfs,destination=/var/haxelib,tmpfs-size=500000000 --mount type=tmpfs,destination=/var/haxe,tmpfs-size=500000000 --read-only --read-only-tmpfs=False haxesandbox:latest
+podman run --rm -p=1337:1111 --secret haxe_authkey,mode=0400 --mount type=tmpfs,destination=/var/haxelib,tmpfs-size=500000000 --mount type=tmpfs,destination=/var/haxe,tmpfs-size=500000000 --read-only --read-only-tmpfs=False ghcr.io/l0go/haxesandbox:latest
 ```
 - Alternatively if you wish to run the container on server boot, you can utilize systemd's Quadlet feature. Just copy ``etc/haxesandbox.container`` in this repository to ``/etc/containers/systemd/`` and run ``systemctl daemon-reload``.
 4. Send a request to the server, change {BASE64} to the base64 key generated from the second step.
