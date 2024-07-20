@@ -1,13 +1,13 @@
-FROM quay.io/fedora/fedora AS build
-RUN dnf install -y haxe
+FROM quay.io/fedora/fedora-minimal AS build
+RUN microdnf install -y haxe
 WORKDIR /app/src
 COPY src ./src/
 COPY vendor ./vendor/
 copy build.hxml ./
 RUN haxe build.hxml -w -WDeprecated
 
-FROM quay.io/fedora/fedora
-RUN dnf install -y nodejs haxe
+FROM quay.io/fedora/fedora-minimal
+RUN microdnf install -y nodejs haxe git
 RUN useradd runner
 RUN haxelib setup /var/haxelib
 RUN mkdir /var/haxe
