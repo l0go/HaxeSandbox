@@ -6,9 +6,9 @@ Once upon a time there was a man who made a chatbot that ran arbitrary Haxe code
 
 ## How?
 1. Install Podman, it is included on Fedora Server installs and presumably most RHEL-based distros
-2. Run this command and save the output somewhere safe
+2. Run this command to generate the base64 key and an additional command you should run to apply it.
 ```bash
-b64=`cat /dev/urandom | head -c 24 | base64`; echo "BASE64: $b64\n"; sum=`printf "%s" $b64 | sha256sum | cut -f 1 -d " "`; printf $sum | podman secret create haxe_authkey - >/dev/null 2>&1
+podman run --rmi ghcr.io/l0go/haxesandbox-keygen
 ```
 3. Run the magic command to download and run the container:
 ```bash
