@@ -17,11 +17,14 @@ jobs:
         working-directory: .
         run: |
           sudo apt install -y podman
-      - name: Build container
+      - name: Build HaxeSandbox container
         working-directory: .
         run: |
-          podman manifest create haxesandbox
-          podman build --platform linux/amd64 --manifest haxesandbox .
+          podman build --platform linux/amd64 -t=haxesandbox .
+      - name: Build keygen container
+        working-directory: ./tools/keygen/
+        run: |
+          podman build --platform linux/amd64 -t=haxesandbox-keygen .
       - name: Log in to Github Packages
         uses: redhat-actions/podman-login@v1
         with:
@@ -32,4 +35,9 @@ jobs:
         uses: redhat-actions/push-to-registry@v2
         with:
           image: haxesandbox
+          registry: ghcr.io/l0go
+      - name: Push keygen to Github Packages
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: haxesandbox-keygen
           registry: ghcr.io/l0go

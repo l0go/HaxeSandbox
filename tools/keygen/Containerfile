@@ -1,0 +1,10 @@
+FROM quay.io/fedora/fedora-minimal AS build
+WORKDIR /app/src
+COPY . ./
+RUN microdnf install -y zig binutils
+RUN zig build -Doptimize=ReleaseSmall
+RUN strip ./zig-out/bin/haxesandbox-keygen
+
+FROM scratch
+COPY --from=build /app/src/zig-out/bin/haxesandbox-keygen /
+CMD ["/haxesandbox-keygen"]

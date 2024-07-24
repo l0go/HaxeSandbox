@@ -3,7 +3,7 @@ RUN microdnf install -y haxe
 WORKDIR /app/src
 COPY src ./src/
 COPY vendor ./vendor/
-copy build.hxml ./
+COPY build.hxml ./
 RUN haxe build.hxml -w -WDeprecated
 
 FROM quay.io/fedora/fedora-minimal

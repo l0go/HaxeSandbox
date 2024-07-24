@@ -1,2 +1,4 @@
 bin/
 .env
+.zig-cache/
+zig-out/

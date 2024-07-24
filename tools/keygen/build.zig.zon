@@ -1,0 +1,18 @@
+.{
+    .name = "haxesandbox-keygen",
+    .version = "0.0.0",
+    .dependencies = .{
+        .chameleon = .{
+            .url = "https://github.com/tr1ckydev/chameleon/archive/e94bf213e542dbfa932469e921a4bd2b8f7bb8b1.zip",
+            .hash = "1220a497e4583061a32a500d6886bc440f34dc54ccd9c08b27769c583baff1c2954f",
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+        // For example...
+        //"LICENSE",
+        //"README.md",
+    },
+}
