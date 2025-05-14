@@ -1,4 +1,4 @@
-FROM quay.io/fedora/fedora-minimal AS build
+FROM quay.io/fedora/fedora-minimal:42 AS build
 RUN microdnf install -y haxe
 WORKDIR /app/src
 COPY src ./src/
@@ -6,7 +6,7 @@ COPY vendor ./vendor/
 COPY build.hxml ./
 RUN haxe build.hxml -w -WDeprecated
 
-FROM quay.io/fedora/fedora-minimal
+FROM quay.io/fedora/fedora-minimal:42
 RUN microdnf install -y nodejs haxe git
 RUN useradd runner
 RUN haxelib setup /var/haxelib

@@ -1,4 +1,4 @@
-FROM quay.io/fedora/fedora-minimal AS build
+FROM quay.io/fedora/fedora-minimal:42 AS build
 WORKDIR /app/src
 COPY . ./
 RUN microdnf install -y zig binutils
