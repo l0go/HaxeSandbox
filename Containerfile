@@ -16,6 +16,7 @@ FROM quay.io/fedora/fedora-minimal:43
 RUN microdnf install -y nodejs git neko
 COPY --from=build /app/haxe /app/haxe
 ENV PATH="$PATH:/app/haxe"
+ENV HAXE_STD_PATH="/app/haxe/std/"
 RUN useradd runner
 RUN haxelib setup /var/haxelib
 RUN mkdir /var/haxe
