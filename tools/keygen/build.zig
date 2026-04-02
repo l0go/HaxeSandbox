@@ -5,13 +5,18 @@ pub fn build(b: *std.Build) void {
     const optimize = b.standardOptimizeOption(.{});
 
     const chameleon = b.dependency("chameleon", .{}).module("chameleon");
+
     const exe = b.addExecutable(.{
         .name = "haxesandbox-keygen",
-        .root_source_file = b.path("src/main.zig"),
-        .target = target,
-        .optimize = optimize,
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("src/main.zig"),
+            .target = target,
+            .optimize = optimize,
+            .imports = &.{
+                .{ .name = "chameleon", .module = chameleon },
+            },
+        }),
     });
-    exe.root_module.addImport("chameleon", chameleon);
 
     b.installArtifact(exe);
 

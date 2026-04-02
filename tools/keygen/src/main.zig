@@ -1,5 +1,5 @@
 const std = @import("std");
-const Chameleon = @import("chameleon").Chameleon;
+const Chameleon = @import("chameleon");
 const base64 = std.base64.standard;
 const sha256 = std.crypto.hash.sha2.Sha256;
 
@@ -9,11 +9,6 @@ pub fn main() !void {
     // Create allocator
     var ally = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer ally.deinit();
-
-    // Initialize stdout
-    const stdout_file = std.io.getStdOut().writer();
-    var bw = std.io.bufferedWriter(stdout_file);
-    const stdout = bw.writer();
 
     // Generate some random bytes to generate the base64 from
     var bytes: [length]u8 = undefined;
@@ -28,8 +23,8 @@ pub fn main() !void {
     sha256.hash(b64, &hash, .{});
 
     // Now print everything to the user
-    comptime var cham = Chameleon.init(.Auto);
-    try stdout.print(cham.redBright().fmt(
+    comptime var cham = Chameleon.initComptime();
+    try cham.redBright().printOut(
         \\
         \\ _   _                     _____                    _  _                  
         \\| | | |                   /  ___|                  | || |                 
@@ -40,11 +35,9 @@ pub fn main() !void {
         \\
         \\
         \\
-    ), .{});
-    try stdout.print(cham.yellow().fmt("Run this command to save the hashed key:\n"), .{});
-    try stdout.print(cham.grey().fmt("printf \"{s}\" | podman secret create --replace haxe_authkey -\n\n"), .{std.fmt.fmtSliceHexLower(&hash)});
-    try stdout.print(cham.yellow().fmt("The following is the base64 key you should provide to HaxeSandbox during requests. Keep this secret!\n"), .{});
-    try stdout.print(cham.grey().fmt("{s}\n"), .{b64});
-
-    try bw.flush();
+    , .{});
+    try cham.yellow().printOut("Run this command to save the hashed key:\n", .{});
+    try cham.grey().printOut("printf \"{x}\" | podman secret create --replace haxe_authkey -\n\n", .{&hash});
+    try cham.yellow().printOut("The following is the base64 key you should provide to HaxeSandbox during requests. Keep this secret!\n", .{});
+    try cham.grey().printOut("{s}\n", .{b64});
 }
